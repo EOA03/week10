@@ -7,6 +7,8 @@ info:
 servers:
   - url: http://localhost:3000
     description: Local server
+  - url: https://week-10-eoa03.cyclic.cloud/
+    description: Cyclic server
 
 components:
   securitySchemes:
