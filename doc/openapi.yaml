@@ -1,0 +1,252 @@
+openapi: 3.0.0
+info:
+  title: Auth di Express JS
+  version: 1.0.0
+  description: Belajar RBAC dengan token based Auth
+
+servers:
+  - url: http://localhost:3000
+    description: Local server
+
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: bearer with JWT Token
+
+  schemas:
+    BadRequest:
+      type: object
+      properties:
+        error:
+          type: string
+
+paths:
+  /auth:
+    get:
+      summary: Get all users
+      responses:
+        200:
+          description: Success get all users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        username:
+                          type: string
+                        password:
+                          type: string
+                        role:
+                          type: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+
+  /auth/register:
+    post:
+      summary: Register new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  default: 'maker1'
+                password:
+                  type: string
+                  pattern: ^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$
+                  default: 'Maker123'
+                role:
+                  type: string
+                  enum: [maker, approver]
+                  default: maker
+      responses:
+        200:
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      username:
+                        type: string
+                      password:
+                        type: string
+                      role:
+                        type: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+
+  /auth/login:
+    post:
+      summary: Login user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  default: 'maker1'
+                password:
+                  type: string
+                  default: 'Maker123'
+      responses:
+        200:
+          description: Login success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+
+  /transfer:
+    get:
+      security:
+        - bearer: []
+      summary: Get all transfer
+      responses:
+        200:
+          description: Success get all transfer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        amount:
+                          type: string
+                        destinationAccount:
+                          type: string
+                        status:
+                          type: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+      
+    post:
+      security:
+        - bearer: []
+      summary: Create new transfer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  default: 1000
+                destinationAccount:
+                  type: string
+                  default: '0123456789'
+      responses:
+        200:
+          description: Transfer created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  amount:
+                    type: number
+                  destinationAccount:
+                    type: string
+                  status:
+                    type: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+  
+  /transfer/{id}:
+    patch:
+      security:
+        - bearer: []
+      summary: Update status transfer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approve, reject]
+      responses:
+        200:
+          description: Update status success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
